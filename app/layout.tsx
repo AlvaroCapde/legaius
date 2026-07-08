@@ -9,12 +9,12 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'LEGAIUS — Legal Intelligence Platform',
+  title: 'LEGAIUS — AI Industry Disruptor',
   description:
-    'LEGAIUS is an award-winning 3D portfolio showcasing next-generation legal technology solutions.',
+    'LEGAIUS  - AI Industry Disruptor',
   openGraph: {
-    title: 'LEGAIUS — Legal Intelligence Platform',
-    description: 'Next-generation legal technology solutions.',
+    title: 'LEGAIUS',
+    description: 'Next-generation technology solutions.',
     type: 'website',
   },
 }

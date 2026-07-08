@@ -1,30 +1,15 @@
 'use client'
 
 import { Canvas } from '@react-three/fiber'
-import { Environment, OrbitControls } from '@react-three/drei'
+import { Environment, Preload } from '@react-three/drei'
 import { Suspense } from 'react'
+import BubbleGallery from './BubbleGallery'
 
-/**
- * Temporary placeholder mesh — will be replaced by the bubble carousel in Part 2.
- */
-function ScenePlaceholder() {
-  return (
-    <mesh>
-      <sphereGeometry args={[0.6, 64, 64]} />
-      <meshPhysicalMaterial
-        color="#8b5cf6"
-        roughness={0.05}
-        metalness={0.1}
-        transmission={0.9}
-        thickness={1.2}
-        ior={1.45}
-        transparent
-      />
-    </mesh>
-  )
+interface SceneProps {
+  onActiveChange?: (index: number) => void
 }
 
-export default function Scene() {
+export default function Scene({ onActiveChange }: SceneProps) {
   return (
     <Canvas
       camera={{ position: [0, 0, 5], fov: 45 }}
@@ -46,19 +31,14 @@ export default function Scene() {
         color="#818cf8"
       />
 
-      {/* ── Environment reflections ── */}
+      {/* ── Environment reflections + Gallery ── */}
       <Suspense fallback={null}>
-        <Environment preset="city" />
-        <ScenePlaceholder />
+        <Environment preset="city" resolution={256} />
+        {/* We pass the onActiveChange callback down to the gallery */}
+        <BubbleGallery onActiveChange={onActiveChange!} />
+        {/* Precompile all materials and textures immediately to prevent scroll stuttering */}
+        <Preload all />
       </Suspense>
-
-      {/* ── Camera controls (dev helper — will be removed in Part 2) ── */}
-      <OrbitControls
-        enableZoom={false}
-        enablePan={false}
-        autoRotate
-        autoRotateSpeed={0.8}
-      />
     </Canvas>
   )
 }
