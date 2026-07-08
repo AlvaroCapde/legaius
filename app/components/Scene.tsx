@@ -13,8 +13,8 @@ export default function Scene({ onActiveChange }: SceneProps) {
   return (
     <Canvas
       camera={{ position: [0, 0, 5], fov: 45 }}
-      gl={{ antialias: true, alpha: false }}
-      dpr={[1, 2]}
+      gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
+      dpr={[1, 1.2]}
       style={{ width: '100%', height: '100%' }}
     >
       {/* ── Lighting ── */}
@@ -23,7 +23,6 @@ export default function Scene({ onActiveChange }: SceneProps) {
         position={[5, 8, 5]}
         intensity={1.8}
         color="#e0d4ff"
-        castShadow
       />
       <directionalLight
         position={[-5, -3, -5]}

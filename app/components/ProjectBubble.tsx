@@ -80,20 +80,19 @@ function GlassShell({ radius }: { radius: number }) {
     <mesh>
       <sphereGeometry args={[radius, 48, 48]} />
       <MeshTransmissionMaterial
-        samples={6}
-        resolution={128}
+        samples={3}
+        resolution={64}
         transmission={1.0}
         thickness={0.45}
         roughness={0.04}
         ior={1.55}
         chromaticAberration={0.07}
         anisotropicBlur={0.06}
-        backside={true}
-        backsideThickness={0.35}
+        backside={false}
         color={new THREE.Color(0xeeeeff)}
         distortion={0.12}
         distortionScale={0.5}
-        temporalDistortion={0.04}
+        temporalDistortion={0.0}
         envMapIntensity={1.6}
         metalness={0.0}
         attenuationColor={new THREE.Color(0x9f7eff)}

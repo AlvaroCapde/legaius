@@ -1,9 +1,9 @@
 'use client'
 
 import { useRef, useCallback, useState } from 'react'
-import { useFrame, ThreeEvent } from '@react-three/fiber'
+import { useFrame, ThreeEvent, useThree } from '@react-three/fiber'
 import { ScrollControls, useScroll, useCursor } from '@react-three/drei'
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 import * as THREE from 'three'
 import ProjectBubble from './ProjectBubble'
 import { PROJECTS, type Project } from '../data/projects'
@@ -36,10 +36,16 @@ function BubbleNode({ project, index, count, onFocus }: BubbleNodeProps) {
   const [hovered, setHovered] = useState(false)
   useCursor(hovered)
 
+  const { viewport } = useThree()
+  const isMobile = viewport.width < 6 // Rough cutoff for mobile in world units
+
+  const currentScaleActive = isMobile ? 1.0 : SCALE_ACTIVE
+  const currentScaleInactive = isMobile ? 0.25 : SCALE_INACTIVE
+
   // Persistent lerp targets — avoids jitter from per-render allocation
   const lerpedX = useRef(index * SPACING)
   const lerpedZ = useRef(index === 0 ? 0 : -DEPTH_FACTOR)
-  const lerpedS = useRef(index === 0 ? SCALE_ACTIVE : SCALE_INACTIVE)
+  const lerpedS = useRef(index === 0 ? currentScaleActive : currentScaleInactive)
 
   useFrame((_state, delta) => {
     // floatIndex ∈ [0, count-1] — the exact fractional "current" bubble
@@ -52,7 +58,7 @@ function BubbleNode({ project, index, count, onFocus }: BubbleNodeProps) {
 
     const targetX = dist * SPACING
     const targetZ = -DEPTH_FACTOR * absDist * absDist * 0.5
-    const targetS = THREE.MathUtils.lerp(SCALE_INACTIVE, SCALE_ACTIVE, falloff * falloff)
+    const targetS = THREE.MathUtils.lerp(currentScaleInactive, currentScaleActive, falloff * falloff)
 
     const k = 1 - Math.exp(-LERP_SPEED * delta)
     lerpedX.current = THREE.MathUtils.lerp(lerpedX.current, targetX, k)
@@ -154,6 +160,16 @@ interface BubbleGalleryProps {
 }
 
 export default function BubbleGallery({ onActiveChange }: BubbleGalleryProps) {
+  // We use standard React state to detect mobile on the client side
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   // When the user clicks a bubble we want to scroll to it.
   // ScrollControls exposes its container via useScroll — but we need the
   // el ref which is only available inside the Scroll tree. We use a simple
@@ -175,8 +191,8 @@ export default function BubbleGallery({ onActiveChange }: BubbleGalleryProps) {
     <ScrollControls
       horizontal
       pages={PROJECTS.length - 1}
-      damping={0.3}
-      distance={1}
+      damping={isMobile ? 0.2 : 0.3} // Slightly stronger damping on mobile
+      distance={isMobile ? 2.0 : 1.2} // Higher distance = requires more swipe to move = less jumpy
       enabled
     >
       <Suspense fallback={null}>
